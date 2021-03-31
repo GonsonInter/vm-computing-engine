@@ -1,0 +1,131 @@
+body {
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+  min-width: 900px;
+  min-height: 600px;
+}
+
+.main-page {
+  height: 100%;
+  background-color: #bec1be;
+  position: relative;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+
+  .operate-bar {
+    position: relative;
+    height: 70px;
+    background-color: #d8dbdb;
+    display: flex;
+    align-items: center;
+    min-width: 1140px;
+  }
+
+  .table-pane {
+    flex: 1;
+    margin-top: 10px;
+    background-color: #d8dbdb;
+    min-width: 1140px;
+  }
+}
+
+.shadow-box {
+  box-shadow: 3px 3px 2px darkgray;
+}
+
+.search-label {
+  display: inline-block;
+  margin-left: 30px;
+  margin-right: 10px;
+  font-size: 18px;
+  font-weight: bold;
+  min-width: 72px;
+  color: #5d6378;
+}
+
+.search-input {
+  width: 250px;
+  min-width: 200px;
+}
+
+.search-button {
+  margin-left: 100px ;
+}
+
+.add-button {
+  position: absolute;
+  right: 25px;
+}
+
+.el-table {
+  background-color: #d8dbdb;
+
+  // 表头
+  .is-leaf {
+    background-color: #d8dbdb;
+  }
+
+  // 表格元素
+  td {
+    background-color: #eeefef;
+  }
+
+}
+
+
+.column-menu {
+  flex: 1;
+  display: flex;
+}
+
+.tree-pane {
+  width: 200px;
+  min-width: 170px;
+  margin-top: 10px;
+  background-color: #d8dbdb;
+  margin-right: 10px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+
+  position: relative;
+
+
+  //.el-button {
+  //  height: 40px;
+  //  margin: 5px 5px;
+  //  background-color: #d8dbdb;
+  //  border: none;
+  //}
+
+  .el-tree {
+    //position: static;
+    background-color: #d8dbdb;
+    font-size: 14px;
+    width: 100%;
+    padding: 5px;
+    box-sizing: border-box;
+
+    .el-checkbox__input {
+      background-color: #333333;
+    }
+
+    .el-tree-node__content {
+      position: relative;
+
+      .el-button {
+        position: absolute;
+        padding: 1px;
+        right: 5px;
+      }
+    }
+  }
+}
+
+
+
+
