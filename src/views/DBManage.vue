@@ -108,7 +108,7 @@ export default {
 
       connectionTestInfo: {
         address: '',
-        dbName: ''
+        dbId: ''
       },
 
       dialogVisible: false,
@@ -180,10 +180,11 @@ export default {
       target.classList.add('is-loading');
 
       this.connectionTestInfo.address = row.address;
-      this.connectionTestInfo.dbName = row.dbName;
+      this.connectionTestInfo.dbId = row.dbId;
       this.$http.post('/dbConfig/ConnectVMTest', this.connectionTestInfo)
         .then(res => {
           if (res.hasOwnProperty('result')) {
+            this.$message.success('测试成功');
             row.state = res.result.state;
             row.connectionTime = res.result.connectionTime;
             target.classList.remove('is-loading');

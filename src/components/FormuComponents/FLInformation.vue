@@ -2,8 +2,9 @@
 
   <el-form ref="dbInfoForm" :model="info" :rules="rules" label-width="120px">
     <el-form-item label="选择组" prop="groupId">
-      <el-cascader :options="groupList" v-model="info.groupId"
-                   :props="cascadeProp" clearable></el-cascader>
+      <el-cascader ref="groupCas"
+          :options="groupList" v-model="info.groupId"
+                   :props="cascadeProp" clearable :disabled="opType !== 0"></el-cascader>
     </el-form-item>
     <el-form-item label="公式模板名称" prop="eqName">
       <el-input placeholder="请输入公式模板名称" v-model="info.eqName" clearable></el-input>
@@ -71,8 +72,13 @@ export default {
 
       this.$refs.dbInfoForm.validate(valid => {
         if (valid) {
+          if (this.info.groupId instanceof Array)
+            this.info.groupId = this.info.groupId[this.info.groupId.length - 1];
+
+          this.info.groupName = this.$refs.groupCas.inputValue;
+
           let url = this.opType ?
-              '/dbConfig/UpdateDbInfo' : '/eqTemplate/AddEqInfo';
+              '/eqTemplate/UpdateEqInfo' : '/eqTemplate/AddEqInfo';
           this.$http.post(url, this.info).then(res => {
 
             console.log(res)

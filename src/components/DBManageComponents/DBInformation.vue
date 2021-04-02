@@ -65,7 +65,7 @@ export default {
 
       testConnectionInfo: {
         address: '',
-        dbName: ''
+        dbId: ''
       },
 
       isLoading: false
@@ -102,13 +102,16 @@ export default {
     testConnection() {
       this.isLoading = true;
       this.testConnectionInfo.address = this.info.address;
-      this.testConnectionInfo.dbName = this.info.dbName;
+      this.testConnectionInfo.dbId = this.info.dbId;
       this.$http.post('/dbConfig/ConnectVMTest', this.testConnectionInfo)
         .then(res => {
           if (res.hasOwnProperty('result')) {
+            this.$message.success('测试成功');
             this.isLoading = false;
+
+            this.info.state = res.result.state;
             document.getElementById('instruction-light')
-                .style.backgroundColor = res.result.state === 0 ? '#bdb7b7' : '83ef7e'
+                .style.backgroundColor = this.info.state === 0 ? '#bdb7b7' : '#83ef7e';
           }
         }).catch(err => {
           setTimeout(() => {

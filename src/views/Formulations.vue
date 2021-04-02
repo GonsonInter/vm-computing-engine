@@ -26,26 +26,30 @@
       <div class="shadow-box tree-pane">
         <!--        <el-button>添加分组</el-button>-->
 
-        <div style="width: 100%; padding: 5px; box-sizing: border-box">
-          <el-input
-              placeholder="输入关键字进行过滤"
-              v-model="filterText" suffix-icon="el-icon-search">
-          </el-input>
-        </div>
-
         <div>
           <el-button type="text"
                      style="position: absolute;
                      bottom: 0; right: 10px"
-                     @click="openAddGroup('', $event)">添加分组</el-button>
+                     @click="openAddGroup('', $event)">添加分组
+          </el-button>
+        </div>
+
+        <div style="width: 100%; padding: 5px; box-sizing: border-box">
+          <el-input
+              placeholder="输入关键字进行过滤"
+              v-model="filterText" suffix-icon="el-icon-search" clearable>
+          </el-input>
         </div>
 
         <el-tree
+            ref="tree"
             :data="treeData"
-            node-key="id"
+            class="filter-tree"
+            node-key="groupId"
             :props="treeProps"
             default-expand-all
             :expand-on-click-node="false"
+            :filter-node-method="filterNode"
             @node-click="getFormulationList">
             <span class="custom-tree-node" slot-scope="{ node, treeData }">
               <span>{{ node.label }}</span>
@@ -71,7 +75,7 @@
                                icon="el-icon-info"
                                icon-color="red"
                                title="确定要删除分组吗？"
-                               @cancel="deleteGroup(node.id)">
+                               @cancel="deleteGroup(node.data.groupId)">
                   <el-button
                       slot="reference"
                       type="text"
@@ -102,7 +106,8 @@
                          @click="openDetail(scope.row)">查看详情
               </el-button>
               <el-button size="mini" type="warning" icon="el-icon-edit"
-                         @click="openEdit(scope.row)">修改</el-button>
+                         @click="openEdit(scope.row)">修改
+              </el-button>
               <el-popconfirm
                   title="确定删除这条公式模板吗？"
                   style="margin-left: 10px"
@@ -214,7 +219,8 @@ export default {
       }]
     }];
     return {
-      treeData: JSON.parse(JSON.stringify(rawData)),
+      // treeData: JSON.parse(JSON.stringify(rawData)),
+      treeData: [],
 
       filterText: '',
 
@@ -229,13 +235,13 @@ export default {
         }, {}, {}],
 
       getGroupInfo: {
-        groupId: '',
+        groupId: 'rootId',
       },
 
       treeProps: {
-        id: 'groupId',
         label: 'groupName',
-        children: 'children'
+        children: 'children',
+        realId: 'groupId'
       },
 
       getFormulationInfo: {
@@ -297,6 +303,10 @@ export default {
         this.addGroupInfo.pGroupId = '';
         this.addGroupInfo.groupName = '';
       }
+    },
+
+    filterText(val) {
+      this.$refs.tree.filter(val);
     }
   },
 
@@ -305,25 +315,27 @@ export default {
       this.$http.post('/eqTemplate/FindGroupInfo', this.getGroupInfo)
           .then(res => {
             if (res.hasOwnProperty('result')) {
-              this.treeData = res.result.groupInfo;
+              // 把没有子节点的Children属性去掉
+              this.treeDataProcess(res.result);
+              this.treeData = res.result.children;
             } else {
               this.$message.error('获取组列表失败')
             }
-          }).catch(() => {
-        this.$message.error('获取组列表失败')
-      })
+          })
     },
 
     openAddGroup(node, event) {
       // event.stopPropagation();
+      // console.log(node);
+
       if (node === '') {
-        this.addGroupInfo.pGroupId = 0;
+        this.addGroupInfo.pGroupId = 'rootId';
         this.currentGroup = {
           label: '根组'
         };
       } else {
         this.currentGroup = Object.assign(node);
-        this.addGroupInfo.pGroupId = node.id;
+        this.addGroupInfo.pGroupId = node.data.groupId;
       }
 
       this.addGroupVisible = true;
@@ -331,8 +343,10 @@ export default {
 
     openEditGroup(node, event) {
       // event.stopPropagation();
-      this.editGroupInfo.pGroupId = node.parent.id;
-      this.editGroupInfo.groupId = node.id;
+
+      // console.log(node);
+      this.editGroupInfo.pGroupId = node.parent.data.groupId;
+      this.editGroupInfo.groupId = node.data.groupId;
       this.editGroupInfo.groupName = node.label;
       // console.log(node)
       this.editGroupVisible = true;
@@ -378,9 +392,9 @@ export default {
       this.$refs[formName].resetFields();
     },
 
-    deleteGroup(id, event) {
+    deleteGroup(groupId, event) {
       // event.stopPropagation();
-      this.$http.post('/eqTemplate/DeleteGroupInfo', {groupId: id})
+      this.$http.post('/eqTemplate/DeleteGroupInfo', {groupId: groupId})
           .then(res => {
             if (res.hasOwnProperty('result')) {
               this.$message.success('删除分组成功');
@@ -403,7 +417,7 @@ export default {
       this.$http.post('/eqTemplate/FindEqInfo', this.getFormulationInfo)
           .then(res => {
             if (res.hasOwnProperty('result')) {
-              // this.tableData = res.result.eqList;
+              this.tableData = res.result.EqInfoList;
             } else {
               this.$message.error('获取公式列表失败')
             }
@@ -451,18 +465,39 @@ export default {
       this.fmlDialogVisible = true;
     },
 
-    opFinished(flag){
+    opFinished(flag) {
       if (flag) {
         this.getFormulationList();
         this.fmlDialogVisible = false;
       }
 
+    },
+
+    treeDataProcess(data) {
+      if (!data.children.length) {
+        delete data.children;
+        return;
+      }
+      data.children.forEach(child => this.treeDataProcess(child));
+    },
+
+    filterNode(value, data) {
+      if (!value) return true;
+      return data.groupName.indexOf(value) !== -1;
     }
   },
 
   mounted() {
     this.getGroupList();
     this.getFormulationList();
+  },
+
+  render(createElement, context) {
+    return createElement('div', {
+      class: {
+
+      }
+    })
   }
 
 }

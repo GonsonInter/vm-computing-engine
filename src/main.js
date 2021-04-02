@@ -11,7 +11,8 @@ Vue.use(ElementUI);
 import '@/assets/css/base.scss';
 import axios from 'axios'
 
-axios.defaults.baseURL = 'http://192.168.1.125:6060';
+axios.defaults.baseURL = 'http://124.71.169.242:6060';
+// axios.defaults.baseURL = 'http://192.168.1.118:6060';
 
 axios.interceptors.request.use(request => {
   let data = {
@@ -29,8 +30,8 @@ axios.interceptors.request.use(request => {
 });
 
 axios.interceptors.response.use(response => {
-  // console.log('收到了响应：');
-  // console.log(response.data);
+  console.log('收到了响应：');
+  console.log(response.data);
   return response.data;
 })
 
