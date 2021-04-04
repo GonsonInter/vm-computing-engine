@@ -98,7 +98,7 @@
           <el-table-column prop="eqId" label="公式ID" v-if="false"></el-table-column>
           <el-table-column prop="eqName" label="公式名称" width="180"></el-table-column>
           <el-table-column prop="groupName" label="组名" width="180"></el-table-column>
-          <el-table-column prop="eqContent" label="公式预览"></el-table-column>
+          <el-table-column prop="eqContent" label="公式预览" :show-overflow-tooltip='true'></el-table-column>
           <el-table-column prop="description" label="说明"></el-table-column>
           <el-table-column label="操作">
             <template slot-scope="scope">
