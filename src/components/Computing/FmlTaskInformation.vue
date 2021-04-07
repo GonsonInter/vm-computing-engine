@@ -10,7 +10,7 @@
       </el-form-item>
 
       <el-form-item label="选择公式" prop="dbId">
-        <el-select placeholder="请选择公式" v-model="fmlTemplate" clearable>
+        <el-select placeholder="请选择公式" v-model="fmlTemplate" @change="selectFormulation" clearable>
           <el-option v-for="item in fmlList" :key="item.eqId"
                      :value="item.eqContent" :label="item.eqName"></el-option>
         </el-select>
@@ -19,7 +19,6 @@
       <el-form-item label="自定义名称" prop="eqName">
         <el-input placeholder="请输入自定义公式名称" v-model="info.eqName" clearable></el-input>
       </el-form-item>
-
 
       <el-form-item label="公式编辑" prop="eqContent">
         <el-input type="textarea" placeholder="请输入公式" v-model="info.eqContent"></el-input>
@@ -106,25 +105,26 @@ export default {
   methods: {
 
     getGroupList() {
-      this.$http.post('/eqTemplate/FindGroupInfo', { groupId: '' })
+      this.$http.post('/eqTemplate/FindGroupInfo', {groupId: 'rootId'})
           .then(res => {
             if (res.hasOwnProperty('result')) {
-              this.groupData = res.result.groupInfo;
+              this.groupData = this.dataProcess(res.result).children;
             } else {
-              this.$message.error('获取组列表失败')
+              this.$message.error('获取组列表失败,' + res.error.message);
             }
           }).catch(() => {
-        this.$message.error('获取组列表失败')
+        this.$message.error('获取组列表失败');
       })
     },
 
     handleGroupChange() {
+      this.fmlTemplate = '';
       this.$http.post('/eqTemplate/FindEqInfo', {
         groupId: this.info.groupId[this.info.groupId.length - 1],
         eqId: '', eqName: ''
       }).then(res => {
         if (res.hasOwnProperty('result')) {
-          this.fmlList = res.result.eqList;
+          this.fmlList = res.result.eqInfoList;
         } else {
           this.$message.error('查询该组下公式模板列表失败');
         }
@@ -134,7 +134,7 @@ export default {
     submit() {
       // console.log(this.info);
       delete this.info.dbName;
-      if ( this.info.groupId instanceof Array)
+      if (this.info.groupId instanceof Array)
         this.info.groupId = this.info.groupId[this.info.groupId.length - 1];
       this.$refs.taskInfoForm.validate(valid => {
         if (valid) {
@@ -157,13 +157,29 @@ export default {
         }
       })
     },
+
+    dataProcess(data) {
+      if (data.hasOwnProperty('children')) {
+        if (!data.children.length)
+          delete data.children;
+        else
+          data.children.forEach(child => {
+            this.dataProcess(child);
+          })
+      }
+      return data;
+    },
+
+    selectFormulation(e) {
+      this.info.eqContent += e.toString();
+    }
   },
 
   watch: {},
 
   mounted() {
     // console.log(this.info);
-
+    this.getGroupList();
   }
 }
 </script>

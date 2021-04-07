@@ -417,7 +417,7 @@ export default {
       this.$http.post('/eqTemplate/FindEqInfo', this.getFormulationInfo)
           .then(res => {
             if (res.hasOwnProperty('result')) {
-              this.tableData = res.result.EqInfoList;
+              this.tableData = res.result.eqInfoList;
             } else {
               this.$message.error('获取公式列表失败')
             }

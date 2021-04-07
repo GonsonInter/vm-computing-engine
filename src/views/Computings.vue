@@ -3,10 +3,10 @@
     <div class="operate-bar shadow-box">
 
       <p class="search-label">查询数据库</p>
-      <el-input class="search-input" v-model="getTaskInfo.dbName"></el-input>
+      <el-input class="search-input" v-model="getTaskInfo.dbName" clearable></el-input>
 
       <p class="search-label">查询任务名</p>
-      <el-input class="search-input" v-model="getTaskInfo.taskName"></el-input>
+      <el-input class="search-input" v-model="getTaskInfo.taskName" clearable></el-input>
 
       <p class="search-label">查询状态</p>
       <el-select class="search-input" v-model="getTaskInfo.state" placeholder="请选择">
@@ -60,7 +60,15 @@
           <el-table-column prop="deadline" label="结束时间" :resizable="false"></el-table-column>
           <el-table-column prop="interval" label="时间间隔" :resizable="false"></el-table-column>
           <el-table-column prop="description" label="描述" :resizable="false"></el-table-column>
-          <el-table-column prop="state" label="运行状态" :resizable="false"></el-table-column>
+          <el-table-column prop="state" label="运行状态" :resizable="false">
+            <template v-slot="scope">
+              <span v-if="scope.row.state === 0">未运行</span>
+              <span v-if="scope.row.state === 1">正在运行</span>
+              <span v-if="scope.row.state === 2">异常运行</span>
+              <span v-if="scope.row.state === 3">异常停止</span>
+              <span v-if="scope.row.state === 4">停止</span>
+            </template>
+          </el-table-column>
           <el-table-column prop="address" label="操作" width="600" :resizable="false">
             <template slot-scope="scope">
               <el-button size="mini" icon="el-icon-monitor"
@@ -75,7 +83,7 @@
                              title="确定要删除这个任务吗？" @confirm="deleteTask(scope.row)">
                 <el-button slot="reference" size="mini" type="danger" icon="el-icon-delete">删除</el-button>
               </el-popconfirm>
-              <el-button size="mini" type="primary" icon="el-icon-tickets">查看日志</el-button>
+              <el-button size="mini" type="primary" icon="el-icon-tickets" @click="checkLog(scope.row.taskId)">查看日志</el-button>
               <el-button size="mini" type="primary" circle
                          icon="el-icon-video-play"
                          :disabled="new Set([1, 2]).has(scope.row.state)"
@@ -111,6 +119,12 @@
                :append-to-body="true"
               width="80%">
       <FmlManage :task-id="selectTaskId"></FmlManage>
+    </el-dialog>
+
+    <el-dialog title="日志信息" :visible.sync="logVisible">
+      <el-card id="log-card">
+        {{ logInfo }}
+      </el-card>
     </el-dialog>
 
   </div>
@@ -160,17 +174,18 @@ export default {
       },
 
       stateOptions: [
+        {value: -1, label: '全部'},
         {value: 0, label: '未运行'},
         {value: 1, label: '正在运行'},
-        {value: 2, label: '异常'},
-        {value: 3, label: '停止'},
-        {value: 4, label: '已完成'},
+        {value: 2, label: '异常运行'},
+        {value: 3, label: '异常停止'},
+        {value: 4, label: '停止'}
       ],
 
       getTaskInfo: {
         dbName: '',
         taskName: '',
-        state: ''
+        state: -1
       },
 
       taskInformationVisible: false,
@@ -180,8 +195,8 @@ export default {
       taskInfo: {
         taskName: '',
         dbId: '',
-        startTime: '',
         deadline: '',
+        interval: 0,
         description: ''
       },
 
@@ -191,7 +206,11 @@ export default {
 
       detailVisible: false,
 
-      fmlManageVisible: false
+      fmlManageVisible: false,
+
+      logInfo: '',
+
+      logVisible: false
 
     }
   },
@@ -200,7 +219,7 @@ export default {
     getDBList() {
       this.$http.post('/countManage/FindConnectedDb', {}).then(res => {
         if (res.hasOwnProperty('result'))
-          this.dbList = res.result.dbInfoList;
+          this.dbList = res.result.DbInfoList;
         else
           this.$message.error('获取数据库信息失败');
       })
@@ -211,11 +230,14 @@ export default {
           .then(res => {
             if (res.hasOwnProperty('result'))
               this.tableData = res.result.taskInfoList;
+            else
+              this.$message.error(`查询任务列表失败，${res.error.message}`)
           })
     },
 
     editOpen(row) {
       this.taskOpType = 1;
+      this.taskInfoTitle = '修改计算任务';
       Object.assign(this.taskInfo, row);
       this.taskInformationVisible = true;
     },
@@ -247,11 +269,18 @@ export default {
             this.$message.success(`任务${row.taskName}${flag ? '启动' : '停止'}成功`);
             this.getTaskList();
           } else {
-            this.$message.error(`任务${row.taskName}${flag ? '启动' : '停止'}失败`);
+            this.$message.error(`任务${row.taskName}${flag ? '启动' : '停止'}失败, ${res.error.message}`);
           }
         }).catch(err => {
           setTimeout(() => this.$message.error(`任务${row.taskName}${flag ? '启动' : '停止'}失败`), 2000);
       })
+    },
+
+    async checkLog(taskId) {
+      let { result } = await this.$http.post('/countManage/FindLogInfo', { taskId });
+      this.logInfo = result.logInfo;
+      console.log(this.logInfo);
+      this.logVisible = true;
     }
   },
 
@@ -261,9 +290,8 @@ export default {
         this.taskInfo = {
           taskName: '',
           dbId: '',
-          startTime: '',
           deadline: '',
-          interval: '',
+          interval: 0,
           description: ''
         }
     }
@@ -277,5 +305,9 @@ export default {
 </script>
 
 <style scoped>
-
+.el-card {
+  height: 500px;
+  overflow: auto;
+  white-space: pre;
+}
 </style>

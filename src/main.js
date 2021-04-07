@@ -11,7 +11,8 @@ Vue.use(ElementUI);
 import '@/assets/css/base.scss';
 import axios from 'axios'
 
-axios.defaults.baseURL = 'http://124.71.169.242:6060';
+// axios.defaults.baseURL = 'http://124.71.169.242:6060';
+axios.defaults.baseURL = 'http://121.37.181.1:6060';
 // axios.defaults.baseURL = 'http://192.168.1.118:6060';
 
 axios.interceptors.request.use(request => {

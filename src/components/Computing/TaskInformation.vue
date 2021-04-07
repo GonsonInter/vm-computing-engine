@@ -80,9 +80,9 @@ export default {
         if (valid) {
           let url = this.opType ?
               '/countManage/UpdateCountTask' : '/countManage/AddCountTask';
-          this.$http.post(url, this.info).then(res => {
 
-            console.log(res)
+          this.info.interval = parseInt(this.info.interval);
+          this.$http.post(url, this.info).then(res => {
             if (res.hasOwnProperty('result')) {
               this.$message.success(this.opType ?
                   '修改成功' : '添加成功');
@@ -98,10 +98,6 @@ export default {
         }
       })
     },
-
-
-
-
   },
 
   watch: {

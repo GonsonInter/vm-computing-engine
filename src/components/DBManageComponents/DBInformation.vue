@@ -112,6 +112,11 @@ export default {
             this.info.state = res.result.state;
             document.getElementById('instruction-light')
                 .style.backgroundColor = this.info.state === 0 ? '#bdb7b7' : '#83ef7e';
+          } else {
+            this.isLoading = false;
+            document.getElementById('instruction-light')
+                .style.backgroundColor = '#bdb7b7';
+            this.$message.error('测试连接失败');
           }
         }).catch(err => {
           setTimeout(() => {

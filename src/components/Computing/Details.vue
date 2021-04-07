@@ -14,7 +14,7 @@
     </div>
 
     <span class="info-label">公式列表</span>
-    <el-table :data="information.eqList" border>
+    <el-table :data="information.eqInfoList" border>
       <el-table-column label="编号" type="index" width="60" :resizable="false"></el-table-column>
       <el-table-column prop="eqName" label="公式名称" width="180" :resizable="false"></el-table-column>
       <el-table-column prop="eqContent" label="公式内容" :resizable="false"></el-table-column>
@@ -71,7 +71,7 @@ export default {
       this.$http.post('/countManage/GetTaskInfo', { taskId: this.taskId })
         .then(res => {
           if (res.hasOwnProperty('result')) {
-            this.information = res.result
+            this.information = res.result.taskInfo;
           } else {
             this.$message.error('查询任务详情失败');
             this.$emit('searchFailed');
