@@ -90,7 +90,7 @@ export default {
 
             if (res.hasOwnProperty('error')) {
               this.$message.error((this.opType ?
-                  '修改失败' : '添加失败') + '，' + res.error.message + '。');
+                  '修改失败' : '添加失败') + '，' + res.error.message);
             }
 
           })

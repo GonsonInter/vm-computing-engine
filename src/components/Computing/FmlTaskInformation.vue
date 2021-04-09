@@ -3,6 +3,7 @@
     <el-form ref="taskInfoForm" :model="info" :rules="rules" label-width="100px">
       <el-form-item label="选择组" prop="dbId">
         <el-cascader
+            clearable
             v-model="info.groupId"
             :options="groupData"
             :props="groupProp"
@@ -12,7 +13,7 @@
       <el-form-item label="选择公式" prop="dbId">
         <el-select placeholder="请选择公式" v-model="fmlTemplate" @change="selectFormulation" clearable>
           <el-option v-for="item in fmlList" :key="item.eqId"
-                     :value="item.eqContent" :label="item.eqName"></el-option>
+                     :value="item.eqName" :label="item.eqName"></el-option>
         </el-select>
       </el-form-item>
 
@@ -33,8 +34,7 @@
           {{ opType ? '修改' : '添加' }}
         </el-button>
         <el-button type="info"
-                   @click="$refs.taskInfoForm.resetFields();
-                   $message.info('已重置')">
+                   @click="resetForm">
           重置
         </el-button>
       </el-form-item>
@@ -113,7 +113,7 @@ export default {
               this.$message.error('获取组列表失败,' + res.error.message);
             }
           }).catch(() => {
-        this.$message.error('获取组列表失败');
+        this.$message.error('获取组列表失败, ' + res.error.message);
       })
     },
 
@@ -125,8 +125,9 @@ export default {
       }).then(res => {
         if (res.hasOwnProperty('result')) {
           this.fmlList = res.result.eqInfoList;
+          // console.log(this.fmlList);
         } else {
-          this.$message.error('查询该组下公式模板列表失败');
+          this.$message.error('查询该组下公式模板列表失败,' + res.error.message);
         }
       })
     },
@@ -151,7 +152,7 @@ export default {
 
             if (res.hasOwnProperty('error')) {
               this.$message.error((this.opType ?
-                  '修改失败' : '添加失败') + '，' + res.error.message + '。');
+                  '修改失败' : '添加失败') + '，' + res.error.message);
             }
           })
         }
@@ -171,7 +172,17 @@ export default {
     },
 
     selectFormulation(e) {
-      this.info.eqContent += e.toString();
+      this.info.eqName = e.toString();
+      this.info.eqContent += this.fmlList.reduce((pre, item) => {
+        return item.eqName === e.toString() ? pre + item.eqContent : pre;
+      }, '')
+    },
+
+    resetForm() {
+      this.$refs.taskInfoForm.resetFields();
+      this.$message.info('已重置');
+      this.info.groupId = '';
+      this.fmlTemplate = '';
     }
   },
 

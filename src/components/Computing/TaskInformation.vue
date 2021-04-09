@@ -20,8 +20,8 @@
       </el-form-item>
       <el-form-item label="时间间隔" prop="interval">
         <div style="display: flex">
-          <el-input v-model="info.interval" placeholder="请输入时间间隔"
-            type="number"></el-input>
+          <el-input-number v-model="info.interval" placeholder="请输入时间间隔"
+            :min="0"></el-input-number>
           <span style="width: 60px; text-align: center">秒</span>
         </div>
 
@@ -66,6 +66,9 @@ export default {
         ],
         interval: [
           {required: true, message: '请输入时间间隔', trigger: 'blue'}
+        ],
+        deadline: [
+          { required: true, message: '请选择结束时间', trigger: 'blur'}
         ]
       },
 
@@ -91,7 +94,7 @@ export default {
 
             if (res.hasOwnProperty('error')) {
               this.$message.error((this.opType ?
-                  '修改失败' : '添加失败') + '，' + res.error.message + '。');
+                  '修改失败' : '添加失败') + '，' + res.error.message);
             }
 
           })
@@ -105,7 +108,7 @@ export default {
   },
 
   mounted() {
-    console.log(this.info);
+    // console.log(this.info);
   }
 }
 </script>

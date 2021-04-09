@@ -6,6 +6,7 @@ body {
   min-height: 600px;
 }
 
+// 主页面
 .main-page {
   height: 100%;
   background-color: #bec1be;
@@ -14,6 +15,7 @@ body {
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
+  overflow: auto;
 
   .operate-bar {
     position: relative;
@@ -21,14 +23,20 @@ body {
     background-color: #d8dbdb;
     display: flex;
     align-items: center;
-    min-width: 1140px;
+    min-width: 1350px;
   }
 
   .table-pane {
-    flex: 1;
+
     margin-top: 10px;
     background-color: #d8dbdb;
     min-width: 1140px;
+    height: calc(100vh - 170px);
+    overflow: auto;
+
+    .el-pagination {
+      margin: 10px;
+    }
   }
 }
 
@@ -52,7 +60,7 @@ body {
 }
 
 .search-button {
-  margin-left: 100px ;
+  margin-left: 100px;
 }
 
 .add-button {
@@ -60,20 +68,7 @@ body {
   right: 25px;
 }
 
-.el-table {
-  background-color: #d8dbdb;
 
-  // 表头
-  .is-leaf {
-    background-color: #d8dbdb;
-  }
-
-  // 表格元素
-  td {
-    background-color: #eeefef;
-  }
-
-}
 
 
 .column-menu {
@@ -81,11 +76,13 @@ body {
   display: flex;
 }
 
+
+// 树形结构
 .tree-pane {
   width: 200px;
-  min-width: 170px;
+  min-width: 190px;
   margin-top: 10px;
-  background-color: #d8dbdb;
+  background-color: #d2d2d2;
   margin-right: 10px;
 
   display: flex;
@@ -93,6 +90,8 @@ body {
   align-items: start;
 
   position: relative;
+
+  overflow: auto;
 
 
   //.el-button {
@@ -104,7 +103,7 @@ body {
 
   .el-tree {
     //position: static;
-    background-color: #d8dbdb;
+    background-color: inherit;
     font-size: 14px;
     width: 100%;
     padding: 5px;
@@ -126,6 +125,85 @@ body {
   }
 }
 
+.label-row {
+  margin-top: 9px;
+}
 
+.label-span {
+  display: inline-block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  -o-text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 80px;
+  height: 24px;
+}
 
+// Home主页头和测边栏
+.home-container {
+  height: 100%;
+
+  .el-header {
+    padding-left: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: sticky;
+    top: 0;
+    // background-color: #343739;
+    background-image: linear-gradient(#296bce, #0d1686, #1b33d4);
+    height: 70px !important;
+    color: #cdcccc;
+  }
+
+  .el-main {
+    padding: 0;
+  }
+
+}
+
+.el-aside {
+  background-color: #D3DCE6;
+  color: #d7c3c3;
+  text-align: center;
+  line-height: 200px;
+
+  .el-menu {
+    background-color: #0b2e65 !important;
+
+    .el-menu-item {
+      background-color: inherit !important;
+    }
+  }
+}
+
+// 滚动条
+div::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+  border-radius: 3px;
+  background-color: #b7b8ba;
+}
+
+div::-webkit-scrollbar-track {
+  border-radius: 5px;
+  background: #b9b9ba;
+}
+
+div::-webkit-scrollbar-thumb {
+  background: #8b8f92;
+  border-radius: 2px;
+}
+
+div::-webkit-scrollbar-thumb:hover {
+  background: #828282;
+}
+
+div::-webkit-scrollbar-corner {
+  background: #bcbfc2;
+}
+
+.el-dialog {
+  min-width: 500px;
+}
 

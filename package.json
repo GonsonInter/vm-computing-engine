@@ -29,5 +29,9 @@
     "not dead"
   ],
   "_id": "vm-computing-engine@0.1.0",
-  "readme": "ERROR: No README data found!"
+  "readme": "ERROR: No README data found!",
+  "author": {
+    "name": "gsjt",
+    "email": "gajt@nuaa.edu.cn"
+  }
 }

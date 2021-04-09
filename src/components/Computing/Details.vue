@@ -14,11 +14,11 @@
     </div>
 
     <span class="info-label">公式列表</span>
-    <el-table :data="information.eqInfoList" border>
+    <el-table :data="information.eqInfoList" border height="450">
       <el-table-column label="编号" type="index" width="60" :resizable="false"></el-table-column>
-      <el-table-column prop="eqName" label="公式名称" width="180" :resizable="false"></el-table-column>
-      <el-table-column prop="eqContent" label="公式内容" :resizable="false"></el-table-column>
-      <el-table-column prop="description" label="描述" :resizable="false"></el-table-column>
+      <el-table-column prop="eqName" label="公式名称" width="180" :resizable="false" :show-overflow-tooltip="true"></el-table-column>
+      <el-table-column prop="eqContent" label="公式内容" :resizable="false" :show-overflow-tooltip="true"></el-table-column>
+      <el-table-column prop="description" label="描述" :resizable="false" :show-overflow-tooltip="true"></el-table-column>
       <el-table-column label="操作" :resizable="false" width="120">
         <template slot-scope="scope">
           <el-button type="text" @click="detailVisible = true;
@@ -26,8 +26,6 @@
         </template>
       </el-table-column>
     </el-table>
-
-
 
     <el-dialog title="查看详情" :visible.sync="detailVisible"
                width="30%" :append-to-body="true">
@@ -73,12 +71,12 @@ export default {
           if (res.hasOwnProperty('result')) {
             this.information = res.result.taskInfo;
           } else {
-            this.$message.error('查询任务详情失败');
+            this.$message.error('查询任务详情失败,' + res.error.message);
             this.$emit('searchFailed');
           }
         }).catch(err => {
           setTimeout(() => {
-            this.$message.error('查询任务详情失败');
+            this.$message.error('查询任务详情失败,' + res.error.message);
             this.$emit('searchFailed');
           }, 2000);
       })

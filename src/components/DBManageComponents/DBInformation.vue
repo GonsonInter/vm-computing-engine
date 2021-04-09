@@ -91,7 +91,7 @@ export default {
 
             if (res.hasOwnProperty('error')) {
               this.$message.error((this.opType ?
-                  '修改失败' : '添加失败') + '，' + res.error.message + '。');
+                  '修改失败' : '添加失败') + '，' + res.error.message);
             }
 
           })
@@ -116,7 +116,7 @@ export default {
             this.isLoading = false;
             document.getElementById('instruction-light')
                 .style.backgroundColor = '#bdb7b7';
-            this.$message.error('测试连接失败');
+            this.$message.error('测试连接失败,' + res.error.message);
           }
         }).catch(err => {
           setTimeout(() => {

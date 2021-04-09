@@ -9,6 +9,7 @@ import 'element-ui/lib/theme-chalk/index.css';
 Vue.use(ElementUI);
 
 import '@/assets/css/base.scss';
+import '@/assets/css/table.scss';
 import axios from 'axios'
 
 // axios.defaults.baseURL = 'http://124.71.169.242:6060';
@@ -25,14 +26,14 @@ axios.interceptors.request.use(request => {
   }
   request.url = '';
   request.data = data;
-  console.log('发送请求')
-  console.log(request.data)
+  // console.log('发送请求')
+  // console.log(request.data)
   return request;
 });
 
 axios.interceptors.response.use(response => {
-  console.log('收到了响应：');
-  console.log(response.data);
+  // console.log('收到了响应：');
+  // console.log(response.data);
   return response.data;
 })
 

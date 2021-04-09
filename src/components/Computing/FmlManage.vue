@@ -19,11 +19,11 @@
                  style="position: absolute; right: 0"
                  @click="fmlInfoVisible = true; opTitle = '添加公式'; opType = 0">添加公式
       </el-button>
-      <el-table :data="information.eqInfoList" border>
+      <el-table :data="information.eqInfoList" border height="450px">
         <el-table-column label="编号" type="index" width="60" :resizable="false"></el-table-column>
-        <el-table-column prop="eqName" label="公式名称" width="180" :resizable="false"></el-table-column>
-        <el-table-column prop="eqContent" label="公式内容" :resizable="false"></el-table-column>
-        <el-table-column prop="description" label="描述" :resizable="false"></el-table-column>
+        <el-table-column prop="eqName" label="公式名称" width="180" :resizable="false" :show-overflow-tooltip="true"></el-table-column>
+        <el-table-column prop="eqContent" label="公式内容" :resizable="false" :show-overflow-tooltip="true"></el-table-column>
+        <el-table-column prop="description" label="描述" :resizable="false" :show-overflow-tooltip="true"></el-table-column>
         <el-table-column label="操作" :resizable="false" width="240">
           <template slot-scope="scope">
             <el-button type="info" size="mini" @click="detailData = scope.row; detailVisible = true">查看</el-button>
@@ -43,7 +43,7 @@
 
 
     <el-dialog :visible.sync="fmlInfoVisible" v-if="fmlInfoVisible"
-               width="30%" :title="opTitle" :append-to-body="true">
+               width="30%" :title="opTitle" :append-to-body="true" :close-on-click-modal="false">
       <FmlTaskInformation :info="fmlInfo" :opType="opType" @opFinished="opFinished"></FmlTaskInformation>
     </el-dialog>
 
@@ -113,12 +113,12 @@ export default {
             if (res.hasOwnProperty('result')) {
               this.information = res.result.taskInfo;
             } else {
-              this.$message.error('查询任务详情失败');
+              this.$message.error('查询任务详情失败,' + res.error.message);
               this.$emit('searchFailed');
             }
           }).catch(err => {
         setTimeout(() => {
-          this.$message.error('查询任务详情失败');
+          this.$message.error('查询任务详情失败,' + res.error.message);
           this.$emit('searchFailed');
         }, 2000);
       })
@@ -138,7 +138,7 @@ export default {
             this.getTaskDetails();
             this.$message.success('删除成功');
           } else {
-            this.$message.error('删除失败');
+            this.$message.error('删除失败,' + res.error.message);
           }
         })
     },

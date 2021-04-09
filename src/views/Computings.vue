@@ -44,7 +44,8 @@
             node-key="id"
             default-expand-all
             :expand-on-click-node="false">
-            <span class="custom-tree-node" slot-scope="{ node, data }">
+            <span class="custom-tree-node" slot-scope="{ node, data }"
+                  @click="treeNodeClick(node.data.dbId)">
               <span>{{ node.label }}</span>
             </span>
         </el-tree>
@@ -52,14 +53,14 @@
       </div>
 
       <div class="table-pane shadow-box" style="flex: 1">
-        <el-table :data="tableData" border style="width: 100%">
+        <el-table :data="shownData" border style="width: 100%" :height="tableHeight">
           <el-table-column label="编号" type="index" width="60" :resizable="false"></el-table-column>
           <el-table-column prop="dbName" label="数据库名称" width="180" :resizable="false"></el-table-column>
-          <el-table-column prop="taskName" label="任务名称" :resizable="false"></el-table-column>
+          <el-table-column prop="taskName" label="任务名称" :resizable="false" :show-overflow-tooltip="true"></el-table-column>
           <el-table-column prop="startTime" label="开始时间" :resizable="false"></el-table-column>
           <el-table-column prop="deadline" label="结束时间" :resizable="false"></el-table-column>
-          <el-table-column prop="interval" label="时间间隔" :resizable="false"></el-table-column>
-          <el-table-column prop="description" label="描述" :resizable="false"></el-table-column>
+          <el-table-column prop="interval" label="时间间隔" :resizable="false" :show-overflow-tooltip="true"></el-table-column>
+          <el-table-column prop="description" label="描述" :resizable="false" :show-overflow-tooltip="true"></el-table-column>
           <el-table-column prop="state" label="运行状态" :resizable="false">
             <template v-slot="scope">
               <span v-if="scope.row.state === 0">未运行</span>
@@ -81,9 +82,11 @@
                          @click="selectTaskId = scope.row.taskId; fmlManageVisible = true">公式管理</el-button>
               <el-popconfirm class="confirm" style="margin: 0 10px"
                              title="确定要删除这个任务吗？" @confirm="deleteTask(scope.row)">
-                <el-button slot="reference" size="mini" type="danger" icon="el-icon-delete">删除</el-button>
+                <el-button slot="reference" size="mini" type="danger" icon="el-icon-delete"
+                           :disabled="new Set([1, 2]).has(scope.row.state)">删除</el-button>
               </el-popconfirm>
-              <el-button size="mini" type="primary" icon="el-icon-tickets" @click="checkLog(scope.row.taskId)">查看日志</el-button>
+              <el-button size="mini" type="primary" icon="el-icon-tickets"
+                         @click="checkLog(scope.row.taskId)">查看日志</el-button>
               <el-button size="mini" type="primary" circle
                          icon="el-icon-video-play"
                          :disabled="new Set([1, 2]).has(scope.row.state)"
@@ -95,19 +98,30 @@
             </template>
           </el-table-column>
         </el-table>
+
+        <el-pagination
+            @size-change="handleSizeChange(tableData)"
+            @current-change="handleCurrentChange(tableData)"
+            :current-page.sync="currentPage"
+            :page-sizes="[5, 10, 20, 50]"
+            :page-size.sync="pageSize"
+            layout="total, sizes, prev, pager, next, jumper"
+            :total.sync="totalNum">
+        </el-pagination>
       </div>
     </div>
 
 
     <!--对话框-->
     <!--查看详情-->
-    <el-dialog :visible.sync="detailVisible" title="任务详情" v-if="detailVisible">
+    <el-dialog :visible.sync="detailVisible" title="任务详情"
+               destroy-on-close>
       <Details :task-id="selectTaskId" @searchFailed="detailVisible = false"></Details>
     </el-dialog>
 
     <!--添加或修改计算任务-->
-    <el-dialog :visible.sync="taskInformationVisible"
-               v-if="taskInformationVisible" :title="taskInfoTitle">
+    <el-dialog :visible.sync="taskInformationVisible" width="30%"
+               destroy-on-close :title="taskInfoTitle" :close-on-click-modal="false">
       <TaskInformation :info="taskInfo" :op-type="taskOpType"
                        :dbList="dbList" @opFinished="taskInfoFinished"></TaskInformation>
     </el-dialog>
@@ -115,9 +129,9 @@
     <!--公式管理对话框-->
     <el-dialog :visible.sync="fmlManageVisible"
                title="公式管理"
-               v-if="fmlManageVisible"
+               destroy-on-close
                :append-to-body="true"
-              width="80%">
+              width="80%" :close-on-click-modal="false">
       <FmlManage :task-id="selectTaskId"></FmlManage>
     </el-dialog>
 
@@ -134,38 +148,21 @@
 import TaskInformation from "@/components/Computing/TaskInformation";
 import Details from "@/components/Computing/Details";
 import FmlManage from "@/components/Computing/FmlManage";
+import tableHeightControl from "@/mixins/tableHeightControl";
+import pageControl from "@/mixins/pageControl";
 
 export default {
   name: "Computings",
+  mixins: [ tableHeightControl, pageControl ],
   components: {TaskInformation, Details, FmlManage},
   data() {
     return {
-      tableData: [{
-        "dbId": 55,
-        "dbName": "waad",
-        "taskName": "wadaw",
-        "startTime": "2021-04-02 00:00:00",
-        "deadline": "2021-04-02 00:00:00",
-        'interval': 20,
-        "description": "wefwf",
-        "state": 1,
-        "taskId": "wqdd"
-      }, {
-        "dbId": 132,
-        "dbName": "1111",
-        "taskName": "2222",
-        "startTime": "2021-04-02 00:00:00",
-        "deadline": "2021-04-02 00:00:00",
-        'interval': 15,
-        "description": "bbbb",
-        "state": 0,
-        "taskId": "jhkukhkhu"
-      }, {}],
+      tableData: [],
 
       dbList: [
-        {dbId: 132, dbName: 'wadad'},
-        {dbId: 55, dbName: 'jikkik'},
-        {dbId: 88, dbName: 'sfgfdhtfd12s1gr'}
+        // {dbId: 132, dbName: 'wadad'},
+        // {dbId: 55, dbName: 'jikkik'},
+        // {dbId: 88, dbName: 'sfgfdhtfd12s1gr'}
       ],
 
       treeProp: {
@@ -210,7 +207,11 @@ export default {
 
       logInfo: '',
 
-      logVisible: false
+      logVisible: false,
+
+      stateMap: new Map(),
+
+      stateQuery: ''
 
     }
   },
@@ -221,15 +222,20 @@ export default {
         if (res.hasOwnProperty('result'))
           this.dbList = res.result.DbInfoList;
         else
-          this.$message.error('获取数据库信息失败');
+          this.$message.error('获取数据库信息失败,' + res.error.message);
       })
     },
 
     getTaskList() {
       this.$http.post('/countManage/FindCountTask', this.getTaskInfo)
           .then(res => {
-            if (res.hasOwnProperty('result'))
+            if (res.hasOwnProperty('result')) {
               this.tableData = res.result.taskInfoList;
+              this.totalNum = this.tableData.length;
+              this.handleFirstShow(this.tableData);
+              this.stateQuery = setInterval(this.getStatus, 5000);
+            }
+
             else
               this.$message.error(`查询任务列表失败，${res.error.message}`)
           })
@@ -239,6 +245,7 @@ export default {
       this.taskOpType = 1;
       this.taskInfoTitle = '修改计算任务';
       Object.assign(this.taskInfo, row);
+      this.taskInfo.interval = parseInt(this.taskInfo.interval.substring(0, this.taskInfo.interval.length));
       this.taskInformationVisible = true;
     },
 
@@ -256,7 +263,7 @@ export default {
               this.$message.success('删除成功');
               this.getTaskList();
             } else {
-              this.$message.error('删除失败');
+              this.$message.error('删除失败,' + res.error.message);
             }
           })
     },
@@ -279,8 +286,34 @@ export default {
     async checkLog(taskId) {
       let { result } = await this.$http.post('/countManage/FindLogInfo', { taskId });
       this.logInfo = result.logInfo;
-      console.log(this.logInfo);
+      // console.log(this.logInfo);
       this.logVisible = true;
+    },
+
+    getStatus() {
+      this.$http.post('/countManage/FindTaskState', {}).then(res => {
+        if (res.hasOwnProperty('result')) {
+          this.stateMap.clear();
+          res.result.taskStateInfoList.forEach(item => {
+            this.stateMap.set(item.taskId, item.state);
+          });
+          this.tableData.forEach(item => {
+            item.state = this.stateMap.get(item.taskId);
+          })
+        }
+
+      })
+    },
+
+    treeNodeClick(dbId) {
+      this.$http.post('/countManage/FindConnectedTaskInfo', { dbId })
+        .then(res => {
+          if (res.hasOwnProperty('result')) {
+            this.tableData = res.result.taskInfoList;
+            this.totalNum = this.tableData.length;
+            this.handleFirstShow(this.tableData);
+          }
+        })
     }
   },
 
@@ -300,14 +333,24 @@ export default {
   mounted() {
     this.getDBList();
     this.getTaskList();
+  },
+
+  beforeDestroy() {
+    clearTimeout(this.stateQuery);
   }
 }
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .el-card {
   height: 500px;
   overflow: auto;
   white-space: pre;
+}
+
+.operate-bar {
+  .search-input {
+    width: 10px;
+  }
 }
 </style>
