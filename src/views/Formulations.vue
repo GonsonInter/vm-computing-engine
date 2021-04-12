@@ -37,7 +37,8 @@
           <el-button type="text"
                      style="position: absolute;
                      bottom: 0; right: 10px"
-                     @click="openAddGroup('', $event)">添加分组</el-button>
+                     @click="openAddGroup('', $event)">添加分组
+          </el-button>
         </div>
 
         <el-tree
@@ -102,7 +103,8 @@
                          @click="openDetail(scope.row)">查看详情
               </el-button>
               <el-button size="mini" type="warning" icon="el-icon-edit"
-                         @click="openEdit(scope.row)">修改</el-button>
+                         @click="openEdit(scope.row)">修改
+              </el-button>
               <el-popconfirm
                   title="确定删除这条公式模板吗？"
                   style="margin-left: 10px"
@@ -451,7 +453,7 @@ export default {
       this.fmlDialogVisible = true;
     },
 
-    opFinished(flag){
+    opFinished(flag) {
       if (flag) {
         this.getFormulationList();
         this.fmlDialogVisible = false;
@@ -464,8 +466,8 @@ export default {
     this.getGroupList();
     this.getFormulationList();
   }
-
 }
+
 </script>
 
 <style scoped lang="scss">
