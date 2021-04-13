@@ -10,7 +10,7 @@
             @change="handleGroupChange"></el-cascader>
       </el-form-item>
 
-      <el-form-item label="选择公式" prop="dbId">
+      <el-form-item label="选择公式" prop="dbId" v-if="hasGroup">
         <el-select placeholder="请选择公式" v-model="fmlTemplate" @change="selectFormulation" clearable>
           <el-option v-for="item in fmlList" :key="item.eqId"
                      :value="item.eqName" :label="item.eqName"></el-option>
@@ -99,6 +99,9 @@ export default {
           {required: true, message: '请编辑公式', trigger: 'blue'}
         ]
       },
+
+      hasGroup: false
+
     }
   },
 
@@ -126,6 +129,8 @@ export default {
         if (res.hasOwnProperty('result')) {
           this.fmlList = res.result.eqInfoList;
           // console.log(this.fmlList);
+
+          this.hasGroup = true;
         } else {
           this.$message.error('查询该组下公式模板列表失败,' + res.error.message);
         }
@@ -174,8 +179,8 @@ export default {
     selectFormulation(e) {
       this.info.eqName = e.toString();
       this.info.eqContent += this.fmlList.reduce((pre, item) => {
-        return item.eqName === e.toString() ? pre + item.eqContent : pre;
-      }, '')
+        return item.eqName === e.toString() ? pre + item.eqContent + ' ' : pre;
+      }, '');
     },
 
     resetForm() {
@@ -183,6 +188,7 @@ export default {
       this.$message.info('已重置');
       this.info.groupId = '';
       this.fmlTemplate = '';
+      this.hasGroup = false;
     }
   },
 

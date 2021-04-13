@@ -1,19 +1,27 @@
 <template>
   <div>
-    <div>
-      <span class="info-label">数据库名称：</span>
-      <span class="info-value">{{ information.dbName }}</span>
-      <span style="margin-left: 50px" class="info-label">任务名称：</span>
-      <span class="info-value">{{ information.taskName }}</span>
+    <div class="label-container">
+      <div style="display: inline-block">
+        <span class="info-label">数据库名称：</span>
+        <span class="info-value">{{ information.dbName }}</span>
+      </div>
+      <div style="display: inline-block; position: absolute; left: 50%">
+        <span class="info-label">任务名称：</span>
+        <span class="info-value">{{ information.taskName }}</span>
+      </div>
     </div>
     <div>
-      <span class="info-label">开始时间：</span>
-      <span class="info-value">{{ information.startTime }}</span>
-      <span style="margin-left: 50px" class="info-label">结束时间：</span>
-      <span class="info-value">{{ information.deadline }}</span>
+      <div style="display: inline-block">
+        <span class="info-label">开始时间：</span>
+        <span class="info-value">{{ information.startTime }}</span>
+      </div>
+      <div style="display: inline-block; position: absolute; left: 50%">
+        <span class="info-label">结束时间：</span>
+        <span class="info-value">{{ information.deadline }}</span>
+      </div>
     </div>
     <div style="position: relative; margin-top: 10px">
-      <span class="info-label">公式列表</span>
+      <span class="info-label">公式列表:</span>
 
       <el-button type="primary" size="mini"
                  style="position: absolute; right: 0"
@@ -177,6 +185,7 @@ export default {
 .info-label {
   font-size: 16px;
   font-weight: bold;
+  line-height: 30px;
 }
 
 .info-value {

@@ -116,13 +116,13 @@
     <!--查看详情-->
     <el-dialog :visible.sync="detailVisible" title="任务详情"
                destroy-on-close>
-      <Details :task-id="selectTaskId" @searchFailed="detailVisible = false"></Details>
+      <Details :task-id="selectTaskId" @searchFailed="detailVisible = false" v-if="detailVisible"></Details>
     </el-dialog>
 
     <!--添加或修改计算任务-->
     <el-dialog :visible.sync="taskInformationVisible" width="30%"
                destroy-on-close :title="taskInfoTitle" :close-on-click-modal="false">
-      <TaskInformation :info="taskInfo" :op-type="taskOpType"
+      <TaskInformation :info="taskInfo" :op-type="taskOpType" v-if="taskInformationVisible"
                        :dbList="dbList" @opFinished="taskInfoFinished"></TaskInformation>
     </el-dialog>
 

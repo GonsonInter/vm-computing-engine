@@ -67,17 +67,17 @@
 
                 <el-button
                     type="text"
-                    size="mini" style="font-size: 10px; right: 50px; margin-top: 1px"
+                    size="mini" style="font-size: 10px; right: 50px; margin-top: 1px; color: black"
                     @click.stop="openAddGroup(node, $event)"
                     v-if="node.level <= 1">
-                  添加
+                  <i class="el-icon-plus"></i>
                 </el-button>
 
                 <el-button
                     type="text"
-                    size="mini" style="font-size: 10px; right: 20px; margin-top: 1px"
+                    size="mini" style="font-size: 10px; right: 27px; margin-top: 1px; color: black"
                     @click.stop="openEditGroup(node, $event)">
-                  修改
+                  <i class="el-icon-edit"></i>
                 </el-button>
 
                 <el-popconfirm placement="right"
@@ -90,10 +90,10 @@
                   <el-button
                       slot="reference"
                       type="text"
-                      size="mini" style="font-size: 20px; line-height: 12px; margin-top: 1px"
+                      size="mini" style="margin-top: 1.5px; color: black"
                       @click.stop=""
                   >
-                    ×
+                    <i class="el-icon-close"></i>
                   </el-button>
                 </el-popconfirm>
 
@@ -194,7 +194,7 @@
 
     <el-dialog :visible.sync="fmlDialogVisible" width="30%"
                :title="fmlDialogName" :close-on-click-modal="false" destroy-on-close>
-      <FLInformation :groupList="this.treeData" :info="formulationInfo"
+      <FLInformation :groupList="this.treeData" :info="formulationInfo" v-if="fmlDialogVisible"
                      :op-type="opType" @opFinished="opFinished"></FLInformation>
     </el-dialog>
 

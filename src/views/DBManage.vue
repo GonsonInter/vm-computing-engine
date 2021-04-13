@@ -63,7 +63,7 @@
 
     <el-dialog :visible.sync="dialogVisible" width="30%"
      :title="dialogName" :close-on-click-modal="false" destroy-on-close>
-      <DBInformation :info="dbInfomation"
+      <DBInformation :info="dbInfomation" v-if="dialogVisible"
                      :opType="opType" @opFinished="opFinished"></DBInformation>
     </el-dialog>
 
