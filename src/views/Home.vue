@@ -30,32 +30,6 @@ export default {
 
 <style scoped lang="scss">
 
-.home-container {
-  height: 100%;
-
-  .el-header {
-    padding-left: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: #343739;
-    height: 70px !important;
-    color: #cdcbcb;
-  }
-
-  .el-main {
-    padding: 0;
-  }
-
-}
-
-
-
-.el-aside {
-  background-color: #D3DCE6;
-  color: #333;
-  text-align: center;
-  line-height: 200px;
-}
+@import "src/assets/css/base";
 
 </style>

@@ -5,14 +5,14 @@
 
       <p class="search-label">查询名称</p>
 
-      <el-input class="search-input" placeholder="输入公式名查询"
+      <el-input class="search-input" clearable placeholder="输入公式名查询"
                 v-model="getFormulationInfo.eqName"></el-input>
 
       <!--      <p class="search-label">查询内容</p>-->
       <!--      <el-input class="search-input" style=""></el-input>-->
 
       <el-button class="search-button" type="warning" icon="el-icon-search" round
-                 @click="getFormulationList">查询
+                 @click="getFormulationList('searchBtn')">查询
       </el-button>
 
       <el-button class="add-button" type="primary"
@@ -26,34 +26,48 @@
       <div class="shadow-box tree-pane">
         <!--        <el-button>添加分组</el-button>-->
 
-        <div style="width: 100%; padding: 5px; box-sizing: border-box">
-          <el-input
-              placeholder="输入关键字进行过滤"
-              v-model="filterText" suffix-icon="el-icon-search">
-          </el-input>
-        </div>
-
         <div>
           <el-button type="text"
                      style="position: absolute;
                      bottom: 0; right: 10px"
                      @click="openAddGroup('', $event)">添加分组
           </el-button>
+
         </div>
 
-        <el-tree
-            :data="treeData"
-            node-key="id"
-            :props="treeProps"
-            default-expand-all
-            :expand-on-click-node="false"
-            @node-click="getFormulationList">
-            <span class="custom-tree-node" slot-scope="{ node, treeData }">
-              <span>{{ node.label }}</span>
+        <div style="width: 100%; padding: 5px; box-sizing: border-box">
+          <el-input
+              placeholder="输入关键字进行过滤"
+              v-model="filterText" suffix-icon="el-icon-search" clearable>
+          </el-input>
+
+        </div>
+
+        <el-button type="text" style="margin: 0 auto; padding: 0; font-size: 10px"
+                   @click="getFormulationList">全部分组
+        </el-button>
+
+        <div style="overflow: auto; width: 100%; height: calc(100vh - 275px)">
+          <el-tree
+              ref="tree"
+              :data="treeData"
+              class="filter-tree"
+              node-key="groupId"
+              :props="treeProps"
+              default-expand-all
+              :expand-on-click-node="false"
+              :filter-node-method="filterNode"
+              @node-click="getFormulationList">
+            <span class="custom-tree-node label-row" slot-scope="{ node, treeData }">
+              <span :title="node.label" class="label-span" v-if="textLength(node.label) <= 9">{{ node.label }}</span>
+              <el-tooltip class="item" effect="dark" :content="node.label" placement="bottom-start" v-else>
+                <span :title="node.label" class="label-span">{{ node.label }}</span>
+              </el-tooltip>
               <span v-if="node.level <= 2">
+
                 <el-button
                     type="text"
-                    size="mini" style="font-size: 10px; right: 50px"
+                    size="mini" style="font-size: 10px; right: 50px; margin-top: 1px"
                     @click.stop="openAddGroup(node, $event)"
                     v-if="node.level <= 1">
                   添加
@@ -61,7 +75,7 @@
 
                 <el-button
                     type="text"
-                    size="mini" style="font-size: 10px; right: 20px"
+                    size="mini" style="font-size: 10px; right: 20px; margin-top: 1px"
                     @click.stop="openEditGroup(node, $event)">
                   修改
                 </el-button>
@@ -72,11 +86,11 @@
                                icon="el-icon-info"
                                icon-color="red"
                                title="确定要删除分组吗？"
-                               @cancel="deleteGroup(node.id)">
+                               @cancel="deleteGroup(node.data.groupId)">
                   <el-button
                       slot="reference"
                       type="text"
-                      size="mini" style="font-size: 20px; line-height: 12px"
+                      size="mini" style="font-size: 20px; line-height: 12px; margin-top: 1px"
                       @click.stop=""
                   >
                     ×
@@ -85,18 +99,19 @@
 
               </span>
             </span>
-        </el-tree>
+          </el-tree>
+        </div>
 
       </div>
 
       <div class="table-pane shadow-box" style="flex: 1">
-        <el-table :data="tableData" border style="width: 100%">
+        <el-table :data="shownData" border style="width: 100%" :height="tableHeight">
           <el-table-column label="编号" type="index" width="60"></el-table-column>
           <el-table-column prop="eqId" label="公式ID" v-if="false"></el-table-column>
-          <el-table-column prop="eqName" label="公式名称" width="180"></el-table-column>
-          <el-table-column prop="groupName" label="组名" width="180"></el-table-column>
-          <el-table-column prop="eqContent" label="公式预览"></el-table-column>
-          <el-table-column prop="description" label="说明"></el-table-column>
+          <el-table-column prop="eqName" label="公式名称" width="180" :show-overflow-tooltip="true"></el-table-column>
+          <el-table-column prop="groupName" label="组名" width="180" :show-overflow-tooltip="true"></el-table-column>
+          <el-table-column prop="eqContent" label="公式预览" :show-overflow-tooltip="true"></el-table-column>
+          <el-table-column prop="description" label="说明" :show-overflow-tooltip="true"></el-table-column>
           <el-table-column label="操作">
             <template slot-scope="scope">
               <el-button size="mini" icon="el-icon-monitor"
@@ -118,18 +133,27 @@
             </template>
           </el-table-column>
         </el-table>
+
+        <el-pagination
+            @size-change="handleSizeChange(tableData)"
+            @current-change="handleCurrentChange(tableData)"
+            :current-page.sync="currentPage"
+            :page-sizes="[5, 10, 20, 50]"
+            :page-size.sync="pageSize"
+            layout="total, sizes, prev, pager, next, jumper"
+            :total.sync="totalNum">
+        </el-pagination>
       </div>
 
     </div>
-
 
     <!--对话框-->
     <el-dialog
         title="添加一个分组"
         :visible.sync="addGroupVisible"
         width="30%"
-        v-if="addGroupVisible">
-      <el-form :model="addGroupInfo" ref="addGroupForm"
+        :close-on-click-modal="false" destroy-on-close>
+      <el-form :model="addGroupInfo" ref="addGroupForm" v-if="addGroupVisible"
                :rules="{ groupName: [ {required: true, message: '请输入新的分组名称', trigger: 'blur'} ] }">
         <el-form-item prop="groupName">
           <span>在<b>{{ currentGroup.label }}</b>下添加组 </span>
@@ -147,7 +171,7 @@
         title="修改分组名"
         :visible.sync="editGroupVisible"
         width="30%"
-        v-if="editGroupVisible">
+        :close-on-click-modal="false" destroy-on-close>
       <el-form :model="editGroupInfo" ref="editGroupForm" label-width="100px"
                :rules="{ groupName: [ {required: true, message: '请输入新的分组名称', trigger: 'blur'} ] }">
         <el-form-item prop="groupName" label="修改组名">
@@ -169,7 +193,7 @@
     </el-dialog>
 
     <el-dialog :visible.sync="fmlDialogVisible" width="30%"
-               :title="fmlDialogName" v-if="fmlDialogVisible">
+               :title="fmlDialogName" :close-on-click-modal="false" destroy-on-close>
       <FLInformation :groupList="this.treeData" :info="formulationInfo"
                      :op-type="opType" @opFinished="opFinished"></FLInformation>
     </el-dialog>
@@ -180,11 +204,17 @@
 
 <script>
 import FLInformation from "@/components/FormuComponents/FLInformation";
+import tableHeightControl from "@/mixins/tableHeightControl";
+import pageControl from "@/mixins/pageControl";
 
 export default {
   name: "Formulations",
 
   components: {FLInformation},
+
+  mixins: [tableHeightControl, pageControl],
+
+  computed: {},
 
   data() {
     const rawData = [{
@@ -216,28 +246,21 @@ export default {
       }]
     }];
     return {
-      treeData: JSON.parse(JSON.stringify(rawData)),
+      // treeData: JSON.parse(JSON.stringify(rawData)),
+      treeData: [],
 
       filterText: '',
 
-      tableData: [
-        {
-          eqId: 'wadwa',
-          eqName: 'awda',
-          groupName: 'dsfa',
-          groupId: 4,
-          eqContent: 'wad',
-          description: 'j7i6'
-        }, {}, {}],
+      tableData: [],
 
       getGroupInfo: {
-        groupId: '',
+        groupId: 'rootId',
       },
 
       treeProps: {
-        id: 'groupId',
         label: 'groupName',
-        children: 'children'
+        children: 'children',
+        realId: 'groupId'
       },
 
       getFormulationInfo: {
@@ -299,33 +322,51 @@ export default {
         this.addGroupInfo.pGroupId = '';
         this.addGroupInfo.groupName = '';
       }
+    },
+
+    filterText(val) {
+      this.$refs.tree.filter(val);
     }
   },
 
   methods: {
+    textLength(text) {
+      let lens = 0; // 中文算2个字
+      for (let i = 0; i < text.length; i++) {
+        if ((text.charCodeAt(i) >= 0) && (text.charCodeAt(i) <= 255)) {
+          lens = lens + 1;
+        } else {
+          lens = lens + 2;
+        }
+      }
+      return lens;
+    },
+
     getGroupList() {
       this.$http.post('/eqTemplate/FindGroupInfo', this.getGroupInfo)
           .then(res => {
             if (res.hasOwnProperty('result')) {
-              this.treeData = res.result.groupInfo;
+              // 把没有子节点的Children属性去掉
+              this.treeDataProcess(res.result);
+              this.treeData = res.result.children;
             } else {
-              this.$message.error('获取组列表失败')
+              this.$message.error('获取组列表失败,' + res.error.message)
             }
-          }).catch(() => {
-        this.$message.error('获取组列表失败')
-      })
+          })
     },
 
     openAddGroup(node, event) {
       // event.stopPropagation();
+      // console.log(node);
+
       if (node === '') {
-        this.addGroupInfo.pGroupId = 0;
+        this.addGroupInfo.pGroupId = 'rootId';
         this.currentGroup = {
           label: '根组'
         };
       } else {
         this.currentGroup = Object.assign(node);
-        this.addGroupInfo.pGroupId = node.id;
+        this.addGroupInfo.pGroupId = node.data.groupId;
       }
 
       this.addGroupVisible = true;
@@ -333,8 +374,10 @@ export default {
 
     openEditGroup(node, event) {
       // event.stopPropagation();
-      this.editGroupInfo.pGroupId = node.parent.id;
-      this.editGroupInfo.groupId = node.id;
+
+      // console.log(node);
+      this.editGroupInfo.pGroupId = node.parent.data.groupId ? node.parent.data.groupId : 'rootId';
+      this.editGroupInfo.groupId = node.data.groupId;
       this.editGroupInfo.groupName = node.label;
       // console.log(node)
       this.editGroupVisible = true;
@@ -362,13 +405,12 @@ export default {
               this.addGroupVisible = false;
               this.editGroupVisible = false;
             } else {
-              this.$message.error(type === 'add' ? '添加分组失败' : '修改分组失败');
+              this.$message.error((type === 'add' ? '添加分组失败' : '修改分组失败') + ',' + res.error.message);
               this.addGroupVisible = false;
               this.editGroupVisible = false;
             }
-          })
-              .catch(err => {
-                this.$message.error(type === 'add' ? '添加分组失败' : '修改分组失败');
+          }).catch(err => {
+                this.$message.error((type === 'add' ? '添加分组失败' : '修改分组失败'));
                 this.addGroupVisible = false;
                 this.editGroupVisible = false;
               })
@@ -380,34 +422,37 @@ export default {
       this.$refs[formName].resetFields();
     },
 
-    deleteGroup(id, event) {
+    deleteGroup(groupId, event) {
       // event.stopPropagation();
-      this.$http.post('/eqTemplate/DeleteGroupInfo', {groupId: id})
+      this.$http.post('/eqTemplate/DeleteGroupInfo', {groupId: groupId})
           .then(res => {
             if (res.hasOwnProperty('result')) {
               this.$message.success('删除分组成功');
               this.getGroupList();
             } else
-              this.$message.error('删除分组失败');
+              this.$message.error('删除分组失败,' + res.error.message);
           }).catch(err => {
-        this.$message.error('删除分组失败');
+        this.$message.error('删除分组失败,' + res.error.message);
       })
     },
 
     getFormulationList(groupId) {
-
       if (arguments[0] && arguments[0].hasOwnProperty('groupId')) {
         let node = arguments[0]
         this.getFormulationInfo.groupId = node.groupId;
-      } else
-        this.getFormulationInfo.groupId = '';
+      } else if (arguments[0] === 'searchBtn')
+        this.getFormulationInfo.groupId = ''
+      else
+        this.getFormulationInfo.groupId = 'rootId';
 
       this.$http.post('/eqTemplate/FindEqInfo', this.getFormulationInfo)
           .then(res => {
             if (res.hasOwnProperty('result')) {
-              // this.tableData = res.result.eqList;
+              this.tableData = res.result.eqInfoList;
+              this.totalNum = this.tableData.length;
+              this.handleFirstShow(this.tableData);
             } else {
-              this.$message.error('获取公式列表失败')
+              this.$message.error('获取公式列表失败,' + res.error.message)
             }
           }).catch(() => {
         this.$message.error('获取公式列表失败');
@@ -421,7 +466,7 @@ export default {
               this.$message.success('删除成功');
               this.getFormulationList();
             } else
-              this.$message.error('删除失败');
+              this.$message.error('删除失败,' + res.error.message);
           }).catch(err => this.$message.error('删除失败'))
     },
 
@@ -459,12 +504,31 @@ export default {
         this.fmlDialogVisible = false;
       }
 
+    },
+
+    treeDataProcess(data) {
+      if (!data.children.length) {
+        delete data.children;
+        return;
+      }
+      data.children.forEach(child => this.treeDataProcess(child));
+    },
+
+    filterNode(value, data) {
+      if (!value) return true;
+      return data.groupName.indexOf(value) !== -1;
     }
   },
 
   mounted() {
     this.getGroupList();
     this.getFormulationList();
+  },
+
+  render(createElement, context) {
+    return createElement('div', {
+      class: {}
+    })
   }
 }
 

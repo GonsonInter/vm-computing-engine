@@ -65,7 +65,7 @@ export default {
 
       testConnectionInfo: {
         address: '',
-        dbName: ''
+        dbId: ''
       },
 
       isLoading: false
@@ -91,7 +91,7 @@ export default {
 
             if (res.hasOwnProperty('error')) {
               this.$message.error((this.opType ?
-                  '修改失败' : '添加失败') + '，' + res.error.message + '。');
+                  '修改失败' : '添加失败') + '，' + res.error.message);
             }
 
           })
@@ -102,13 +102,21 @@ export default {
     testConnection() {
       this.isLoading = true;
       this.testConnectionInfo.address = this.info.address;
-      this.testConnectionInfo.dbName = this.info.dbName;
+      this.testConnectionInfo.dbId = this.info.dbId;
       this.$http.post('/dbConfig/ConnectVMTest', this.testConnectionInfo)
         .then(res => {
           if (res.hasOwnProperty('result')) {
+            this.$message.success('测试成功');
+            this.isLoading = false;
+
+            this.info.state = res.result.state;
+            document.getElementById('instruction-light')
+                .style.backgroundColor = this.info.state === 0 ? '#bdb7b7' : '#83ef7e';
+          } else {
             this.isLoading = false;
             document.getElementById('instruction-light')
-                .style.backgroundColor = res.result.state === 0 ? '#bdb7b7' : '83ef7e'
+                .style.backgroundColor = '#bdb7b7';
+            this.$message.error('测试连接失败,' + res.error.message);
           }
         }).catch(err => {
           setTimeout(() => {

@@ -19,7 +19,7 @@
     </div>
 
     <div class="table-pane shadow-box">
-      <el-table :data="tableData" border style="width: 100%">
+      <el-table :data="shownData" border style="width: 100%;" :height="tableHeight">
         <el-table-column label="编号" type="index" width="60"></el-table-column>
 <!--        <el-table-column prop="dbId" label="if" v-if="false"></el-table-column>-->
         <el-table-column prop="dbName" label="数据库名称" width="180"></el-table-column>
@@ -33,7 +33,7 @@
             (上次测试时间{{ scope.row.connectionTime }})
           </template>
         </el-table-column>
-        <el-table-column prop="description" label="说明"></el-table-column>
+        <el-table-column prop="description" label="说明" :show-overflow-tooltip='true'></el-table-column>
         <el-table-column prop="address" label="操作">
           <template slot-scope="scope">
             <el-button size="mini" type="warning" icon="el-icon-edit"
@@ -49,13 +49,21 @@
           </template>
         </el-table-column>
       </el-table>
+
+      <el-pagination
+          @size-change="handleSizeChange(tableData)"
+          @current-change="handleCurrentChange(tableData)"
+          :current-page.sync="currentPage"
+          :page-sizes="[5, 10, 20, 50]"
+          :page-size.sync="pageSize"
+          layout="total, sizes, prev, pager, next, jumper"
+          :total.sync="totalNum">
+      </el-pagination>
     </div>
 
-
-
     <el-dialog :visible.sync="dialogVisible" width="30%"
-     :title="dialogName">
-      <DBInformation v-if="dialogVisible" :info="dbInfomation"
+     :title="dialogName" :close-on-click-modal="false" destroy-on-close>
+      <DBInformation :info="dbInfomation"
                      :opType="opType" @opFinished="opFinished"></DBInformation>
     </el-dialog>
 
@@ -65,37 +73,20 @@
 
 <script>
 import DBInformation from "@/components/DBManageComponents/DBInformation";
+import tableHeightControl from "@/mixins/tableHeightControl";
+import pageControl from "@/mixins/pageControl";
 
 export default {
 
   name: "dbManage",
 
+  mixins: [ tableHeightControl, pageControl ],
+
   components: { DBInformation },
 
   data() {
     return {
-      tableData: [{
-        "dbName": "aaa",
-        "address": "12.32.13.78:200",
-        "state": 1,
-        "connectionTime": "435",
-        "description": "fdgbfbfdbf",
-        "dbId": "sfe"
-      }, {
-        "dbName": "bbb",
-        "address": "2542540245",
-        "state": 0,
-        "connectionTime": "12321",
-        "description": "awda",
-        "dbId": "fdb"
-      }, {
-        "dbName": "ccc",
-        "address": "4165",
-        "state": 1,
-        "connectionTime": "6756",
-        "description": "ikh,",
-        "dbId": ""
-      }],
+      tableData: [],
 
       dbGetInfo: {
         dbName: '',
@@ -108,7 +99,7 @@ export default {
 
       connectionTestInfo: {
         address: '',
-        dbName: ''
+        dbId: ''
       },
 
       dialogVisible: false,
@@ -127,10 +118,13 @@ export default {
       this.$http.post('/dbConfig/FindDbInfo', this.dbGetInfo)
           .then(res => {
             // console.log(res)
-        if (res.hasOwnProperty('result'))
+        if (res.hasOwnProperty('result')) {
           this.tableData = res.result.dbInfoList;
+          this.totalNum = this.tableData.length;
+          this.handleFirstShow(this.tableData);
+        }
         else
-          this.$message.error('获取数据库列表失败');
+          this.$message.error('获取数据库列表失败,' + res.error.message);
       })
     },
 
@@ -180,15 +174,16 @@ export default {
       target.classList.add('is-loading');
 
       this.connectionTestInfo.address = row.address;
-      this.connectionTestInfo.dbName = row.dbName;
+      this.connectionTestInfo.dbId = row.dbId;
       this.$http.post('/dbConfig/ConnectVMTest', this.connectionTestInfo)
         .then(res => {
           if (res.hasOwnProperty('result')) {
+            this.$message.success('测试成功');
             row.state = res.result.state;
             row.connectionTime = res.result.connectionTime;
             target.classList.remove('is-loading');
           }  else {
-            this.$message.error('测试连接失败');
+            this.$message.error('测试连接失败,' + res.error.message);
             target.classList.remove('is-loading');
           }
         }).catch(err => {
