@@ -402,6 +402,7 @@ export default {
             if (res.hasOwnProperty('result')) {
               this.$message.success(type === 'add' ? '添加分组成功' : '修改分组成功');
               this.getGroupList();
+              this.getFormulationList();
               this.addGroupVisible = false;
               this.editGroupVisible = false;
             } else {

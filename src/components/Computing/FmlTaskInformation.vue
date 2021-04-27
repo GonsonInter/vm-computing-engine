@@ -190,6 +190,7 @@ export default {
       this.fmlTemplate = '';
       this.hasGroup = false;
     }
+
   },
 
   watch: {},

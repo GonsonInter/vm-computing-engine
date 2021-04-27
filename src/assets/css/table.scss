@@ -1,9 +1,11 @@
 .el-table {
-  background-color: #d8dbdb;
+  background-color: #e5e8e8;
 
   // 表头
   .is-leaf {
     background-color: #d8dbdb;
+    color: #2f2e2e;
+    text-align: center;
   }
 
   // 表格元素

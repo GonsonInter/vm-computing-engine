@@ -56,11 +56,14 @@
         <el-table :data="shownData" border style="width: 100%" :height="tableHeight">
           <el-table-column label="编号" type="index" width="60" :resizable="false"></el-table-column>
           <el-table-column prop="dbName" label="数据库名称" width="180" :resizable="false"></el-table-column>
-          <el-table-column prop="taskName" label="任务名称" :resizable="false" :show-overflow-tooltip="true"></el-table-column>
+          <el-table-column prop="taskName" label="任务名称" :resizable="false"
+                           :show-overflow-tooltip="true"></el-table-column>
           <el-table-column prop="startTime" label="开始时间" :resizable="false"></el-table-column>
           <el-table-column prop="deadline" label="结束时间" :resizable="false"></el-table-column>
-          <el-table-column prop="interval" label="时间间隔" :resizable="false" :show-overflow-tooltip="true"></el-table-column>
-          <el-table-column prop="description" label="描述" :resizable="false" :show-overflow-tooltip="true"></el-table-column>
+          <el-table-column prop="interval" label="时间间隔" :resizable="false"
+                           :show-overflow-tooltip="true"></el-table-column>
+          <el-table-column prop="description" label="描述" :resizable="false"
+                           :show-overflow-tooltip="true"></el-table-column>
           <el-table-column prop="state" label="运行状态" :resizable="false">
             <template v-slot="scope">
               <span v-if="scope.row.state === 0">未运行</span>
@@ -77,16 +80,20 @@
               </el-button>
               <el-button size="mini" type="info" icon="el-icon-edit"
                          :disabled="new Set([1, 2, 3, 4]).has(scope.row.state)"
-                         @click="editOpen(scope.row)">修改</el-button>
+                         @click="editOpen(scope.row)">修改
+              </el-button>
               <el-button size="mini" type="warning" icon="el-icon-setting"
-                         @click="selectTaskId = scope.row.taskId; fmlManageVisible = true">公式管理</el-button>
+                         @click="selectTaskId = scope.row.taskId; fmlManageVisible = true">公式管理
+              </el-button>
               <el-popconfirm class="confirm" style="margin: 0 10px"
                              title="确定要删除这个任务吗？" @confirm="deleteTask(scope.row)">
                 <el-button slot="reference" size="mini" type="danger" icon="el-icon-delete"
-                           :disabled="new Set([1, 2]).has(scope.row.state)">删除</el-button>
+                           :disabled="new Set([1, 2]).has(scope.row.state)">删除
+                </el-button>
               </el-popconfirm>
               <el-button size="mini" type="primary" icon="el-icon-tickets"
-                         @click="checkLog(scope.row.taskId)">查看日志</el-button>
+                         @click="checkLog(scope.row.taskId)">查看日志
+              </el-button>
               <el-button size="mini" type="primary" circle
                          icon="el-icon-video-play"
                          :disabled="new Set([1, 2]).has(scope.row.state)"
@@ -131,8 +138,8 @@
                title="公式管理"
                destroy-on-close
                :append-to-body="true"
-              width="80%" :close-on-click-modal="false">
-      <FmlManage :task-id="selectTaskId"></FmlManage>
+               width="80%" :close-on-click-modal="false">
+      <FmlManage v-if="fmlManageVisible" :task-id="selectTaskId"></FmlManage>
     </el-dialog>
 
     <el-dialog title="日志信息" :visible.sync="logVisible">
@@ -153,7 +160,7 @@ import pageControl from "@/mixins/pageControl";
 
 export default {
   name: "Computings",
-  mixins: [ tableHeightControl, pageControl ],
+  mixins: [tableHeightControl, pageControl],
   components: {TaskInformation, Details, FmlManage},
   data() {
     return {
@@ -234,9 +241,7 @@ export default {
               this.totalNum = this.tableData.length;
               this.handleFirstShow(this.tableData);
               this.stateQuery = setInterval(this.getStatus, 5000);
-            }
-
-            else
+            } else
               this.$message.error(`查询任务列表失败，${res.error.message}`)
           })
     },
@@ -270,52 +275,69 @@ export default {
 
     startOrStopTask(row, flag) {
       let url = flag ? '/countManage/StartCountTask' : '/countManage/StopCountTask'
-      this.$http.post(url, { taskId: row.taskId })
-        .then(res => {
-          if (res.hasOwnProperty('result')) {
-            this.$message.success(`任务${row.taskName}${flag ? '启动' : '停止'}成功`);
-            this.getTaskList();
-          } else {
-            this.$message.error(`任务${row.taskName}${flag ? '启动' : '停止'}失败, ${res.error.message}`);
-          }
-        }).catch(err => {
-          setTimeout(() => this.$message.error(`任务${row.taskName}${flag ? '启动' : '停止'}失败`), 2000);
+      this.$http.post(url, {taskId: row.taskId})
+          .then(res => {
+            if (res.hasOwnProperty('result')) {
+              this.$message.success(`任务${row.taskName}${flag ? '启动' : '停止'}成功`);
+              this.getTaskList();
+            } else {
+              this.$message.error(`任务${row.taskName}${flag ? '启动' : '停止'}失败, ${res.error.message}`);
+            }
+          }).catch(err => {
+        setTimeout(() => this.$message.error(`任务${row.taskName}${flag ? '启动' : '停止'}失败`), 2000);
       })
     },
 
     async checkLog(taskId) {
-      let { result } = await this.$http.post('/countManage/FindLogInfo', { taskId });
+      let {result} = await this.$http.post('/countManage/FindLogInfo', {taskId});
       this.logInfo = result.logInfo;
       // console.log(this.logInfo);
       this.logVisible = true;
     },
 
     getStatus() {
-      this.$http.post('/countManage/FindTaskState', {}).then(res => {
-        if (res.hasOwnProperty('result')) {
-          this.stateMap.clear();
-          res.result.taskStateInfoList.forEach(item => {
-            this.stateMap.set(item.taskId, item.state);
-          });
-          this.tableData.forEach(item => {
-            item.state = this.stateMap.get(item.taskId);
+      // this.$http.post('/countManage/FindTaskState', { taskId: '' }).then(res => {
+      //   if (res.hasOwnProperty('result')) {
+      //     this.stateMap.clear();
+      //     res.result.taskStateInfoList.forEach(item => {
+      //       this.stateMap.set(item.taskId, item.state);
+      //     });
+      //     this.tableData.forEach(item => {
+      //       item.state = this.stateMap.get(item.taskId);
+      //     })
+      //   }
+      // })
+
+      let set = new Set([1, 2]);
+
+      this.shownData.forEach(data => {
+        if (set.has(data.state)) {
+          this.$http.post('/countManage/FindTaskState', { taskId: data.taskId }).then(res => {
+            if (res.hasOwnProperty('result')) {
+              data.state = res.result.state;
+            }
           })
         }
-
       })
     },
 
     treeNodeClick(dbId) {
-      this.$http.post('/countManage/FindConnectedTaskInfo', { dbId })
-        .then(res => {
-          if (res.hasOwnProperty('result')) {
-            this.tableData = res.result.taskInfoList;
-            this.totalNum = this.tableData.length;
-            this.handleFirstShow(this.tableData);
-          }
-        })
+      this.$http.post('/countManage/FindConnectedTaskInfo', {dbId})
+          .then(res => {
+            if (res.hasOwnProperty('result')) {
+              this.tableData = res.result.taskInfoList;
+              this.totalNum = this.tableData.length;
+              this.handleFirstShow(this.tableData);
+            }
+          })
     }
   },
+
+  // sockets: {
+  //   connect() {
+  //     console.log('连接socket')
+  //   }
+  // },
 
   watch: {
     taskInformationVisible(newVal) {

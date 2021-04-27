@@ -5,44 +5,45 @@ import store from './store'
 
 import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
+import '@/assets/css/base.scss';
+import '@/assets/css/table.scss';
+import '@/protocalConfig';
+import axios from "axios";
+import {getBaseURL} from "@/protocalConfig";
 
 Vue.use(ElementUI);
 
-import '@/assets/css/base.scss';
-import '@/assets/css/table.scss';
-import axios from 'axios'
+getBaseURL().then(() => {
 
-// axios.defaults.baseURL = 'http://124.71.169.242:6060';
-axios.defaults.baseURL = 'http://121.37.181.1:6060';
-// axios.defaults.baseURL = 'http://192.168.1.118:6060';
+  Vue.prototype.$http = axios;
 
-axios.interceptors.request.use(request => {
-  let data = {
-    id: 1,
-    version: '',
-    method: request.url.split('/').join('.').replace('.', ''),
-    token: '',
-    params: request.data,
-  }
-  request.url = '';
-  request.data = data;
-  // console.log('发送请求')
-  // console.log(request.data)
-  return request;
+  Vue.config.productionTip = false;
+
+  axios.interceptors.request.use(request => {
+    let data = {
+      id: 1,
+      version: '',
+      method: request.url.split('/').join('.').replace('.', ''),
+      token: '',
+      params: request.data,
+    }
+    request.url = '';
+    request.data = data;
+    // console.log('发送请求')
+    // console.log(request.data.params)
+    return request;
+  });
+
+  axios.interceptors.response.use(response => {
+    // console.log('收到了响应：');
+    // console.log(response.data);
+    return response.data;
+  })
+
+  new Vue({
+    router,
+    store,
+    render: h => h(App)
+  }).$mount('#app')
 });
 
-axios.interceptors.response.use(response => {
-  // console.log('收到了响应：');
-  // console.log(response.data);
-  return response.data;
-})
-
-Vue.prototype.$http = axios;
-
-Vue.config.productionTip = false
-
-new Vue({
-  router,
-  store,
-  render: h => h(App)
-}).$mount('#app')

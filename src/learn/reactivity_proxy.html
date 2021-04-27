@@ -31,6 +31,7 @@
       },
 
       set (target, key, val, receiver) {
+        console.log(receiver)
         // 重复的数据不处理
         if (target === target[key])   return true;
 
