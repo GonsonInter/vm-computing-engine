@@ -15,13 +15,13 @@
                         v-model="info.deadline"
                         type="datetime"
                         value-format="yyyy-MM-dd HH:mm:ss"
-                        :default-time = "info.deadline"
+                        :default-time="info.deadline"
                         clearable></el-date-picker>
       </el-form-item>
       <el-form-item label="时间间隔" prop="interval">
         <div style="display: flex">
-          <el-input-number v-model="info.interval" placeholder="请输入时间间隔"
-            :min="0"></el-input-number>
+          <el-input-number id="intervalInput" v-model="info.interval" placeholder="请输入时间间隔"
+                           :min="0" :step="1" :step-strictly="true"></el-input-number>
           <span style="width: 60px; text-align: center">秒</span>
         </div>
 
@@ -36,7 +36,8 @@
         <el-button type="info"
                    @click="$refs.taskInfoForm.resetFields();
                    $message.info('已重置')">
-          重置</el-button>
+          重置
+        </el-button>
       </el-form-item>
     </el-form>
   </div>
@@ -46,9 +47,20 @@
 export default {
   name: "TaskInformation",
 
-  props: [ 'info', 'opType', 'dbList' ],
+  props: ['info', 'opType', 'dbList'],
 
   data() {
+
+    let numberValidate = function (rule, value, callback) {
+      // console.log(value)
+      if (value === 0) {
+        callback(new Error('时间间隔不能是0'));
+      } else if (parseInt(value) === value) {
+        callback();
+      } else {
+        this.info.interval = parseInt(this.info.interval);
+      }
+    }
 
     return {
       // formInfo: {
@@ -65,10 +77,11 @@ export default {
           {required: true, message: '请选择数据库', trigger: 'blur'},
         ],
         interval: [
-          {required: true, message: '请输入时间间隔', trigger: 'blue'}
+          {required: true, message: '请输入时间间隔', trigger: 'blur'},
+          {validator: numberValidate, trigger: 'change'}
         ],
         deadline: [
-          { required: true, message: '请选择结束时间', trigger: 'blur'}
+          {required: true, message: '请选择结束时间', trigger: 'blur'}
         ]
       },
 
@@ -101,14 +114,21 @@ export default {
         }
       })
     },
+
+    numberHandle(event) {
+      event.target.value = parseInt(event.target.value);
+      if (isNaN(event.target.value))
+        event.target.value = 0;
+    }
   },
 
-  watch: {
-
-  },
+  watch: {},
 
   mounted() {
     // console.log(this.info);
+    let s = document.getElementsByClassName('el-input__inner')
+    console.log(s[s.length - 1]);
+    s[s.length - 1].addEventListener('keyup', this.numberHandle)
   }
 }
 </script>

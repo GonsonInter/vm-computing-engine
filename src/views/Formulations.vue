@@ -343,16 +343,22 @@ export default {
     },
 
     getGroupList() {
-      this.$http.post('/eqTemplate/FindGroupInfo', this.getGroupInfo)
-          .then(res => {
-            if (res.hasOwnProperty('result')) {
-              // 把没有子节点的Children属性去掉
-              this.treeDataProcess(res.result);
-              this.treeData = res.result.children;
-            } else {
-              this.$message.error('获取组列表失败,' + res.error.message)
-            }
-          })
+
+      return new Promise((resolve, reject) => {
+        this.$http.post('/eqTemplate/FindGroupInfo', this.getGroupInfo)
+            .then(res => {
+              if (res.hasOwnProperty('result')) {
+                // 把没有子节点的Children属性去掉
+                this.treeDataProcess(res.result);
+                this.treeData = res.result.children;
+                resolve(this.treeData);
+              } else {
+                this.$message.error('获取组列表失败,' + res.error.message)
+                reject();
+              }
+            })
+      })
+
     },
 
     openAddGroup(node, event) {
@@ -437,7 +443,7 @@ export default {
       })
     },
 
-    getFormulationList(groupId) {
+    async getFormulationList(groupId) {
       if (arguments[0] && arguments[0].hasOwnProperty('groupId')) {
         let node = arguments[0]
         this.getFormulationInfo.groupId = node.groupId;
@@ -446,12 +452,17 @@ export default {
       else
         this.getFormulationInfo.groupId = 'rootId';
 
+      let treeData = await this.getGroupList();
       this.$http.post('/eqTemplate/FindEqInfo', this.getFormulationInfo)
           .then(res => {
             if (res.hasOwnProperty('result')) {
               this.tableData = res.result.eqInfoList;
               this.totalNum = this.tableData.length;
               this.handleFirstShow(this.tableData);
+              this.tableData.forEach(item => {
+                item.groupName = this.getGroupName(item.groupId, treeData);
+              })
+              console.log(this.tableData)
             } else {
               this.$message.error('获取公式列表失败,' + res.error.message)
             }
@@ -518,11 +529,40 @@ export default {
     filterNode(value, data) {
       if (!value) return true;
       return data.groupName.indexOf(value) !== -1;
+    },
+
+    getGroupName(id, treeData) {
+      treeData = {
+        groupId: -1,
+        children: treeData
+      }
+      let path = [];
+      let find = false;
+      // console.log(treeData)
+      dfs(treeData);
+      return path.join(' / ');
+
+      function dfs(node) {
+        path.push(node.groupName);
+        if (node.groupId === id) {
+          find = true;
+          console.log(path)
+          return;
+        }
+        if (!node.children || !node.children.length)  path.pop();
+        else {
+          for (let i = 0; i < node.children.length; i ++) {
+            dfs(node.children[i]);
+            if (find) return;
+          }
+        }
+        path.pop();
+      }
     }
   },
 
   mounted() {
-    this.getGroupList();
+    // this.getGroupList();
     this.getFormulationList();
   },
 

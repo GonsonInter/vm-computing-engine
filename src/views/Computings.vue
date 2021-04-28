@@ -14,6 +14,10 @@
                    :value="item.value" :label="item.label"></el-option>
       </el-select>
 
+      <el-button class="search-button" type="info" icon="el-icon-refresh-right"
+                 round @click="resetSearch">重置
+      </el-button>
+
       <el-button class="search-button" type="warning" icon="el-icon-search"
                  round @click="getTaskList">查询
       </el-button>
@@ -219,7 +223,6 @@ export default {
       stateMap: new Map(),
 
       stateQuery: ''
-
     }
   },
 
@@ -330,6 +333,14 @@ export default {
               this.handleFirstShow(this.tableData);
             }
           })
+    },
+
+    resetSearch() {
+      this.getTaskInfo = {
+        dbName: '',
+            taskName: '',
+            state: -1
+      }
     }
   },
 

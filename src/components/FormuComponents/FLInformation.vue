@@ -9,7 +9,7 @@
     <el-form-item label="公式模板名称" prop="eqName">
       <el-input placeholder="请输入公式模板名称" v-model="info.eqName" clearable></el-input>
     </el-form-item>
-    <el-form-item label="公式模板编辑" prop="eqContent">
+    <el-form-item label="公式内容" prop="eqContent">
       <el-input placeholder="请编辑公式模板" v-model="info.eqContent"
                 type="textarea" clearable></el-input>
     </el-form-item>
