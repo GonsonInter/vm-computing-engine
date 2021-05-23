@@ -58,17 +58,17 @@
 
       <div class="table-pane shadow-box" style="flex: 1">
         <el-table :data="shownData" border style="width: 100%" :height="tableHeight">
-          <el-table-column label="编号" type="index" width="60" :resizable="false"></el-table-column>
-          <el-table-column prop="dbName" label="数据库名称" width="180" :resizable="false"></el-table-column>
-          <el-table-column prop="taskName" label="任务名称" :resizable="false"
+          <el-table-column label="编号" type="index" width="50" :resizable="false"></el-table-column>
+          <el-table-column prop="dbName" label="数据库名称" width="120" :resizable="false"></el-table-column>
+          <el-table-column prop="taskName" label="任务名称"  width="120" :resizable="false"
                            :show-overflow-tooltip="true"></el-table-column>
           <el-table-column prop="startTime" label="开始时间" :resizable="false"></el-table-column>
           <el-table-column prop="deadline" label="结束时间" :resizable="false"></el-table-column>
-          <el-table-column prop="interval" label="时间间隔" :resizable="false"
+          <el-table-column prop="interval" label="时间间隔" width="80" :resizable="false"
                            :show-overflow-tooltip="true"></el-table-column>
           <el-table-column prop="description" label="描述" :resizable="false"
                            :show-overflow-tooltip="true"></el-table-column>
-          <el-table-column prop="state" label="运行状态" :resizable="false">
+          <el-table-column prop="state" label="运行状态" width="90" :resizable="false">
             <template v-slot="scope">
               <span v-if="scope.row.state === 0">未运行</span>
               <span v-if="scope.row.state === 1">正在运行</span>

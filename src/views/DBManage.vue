@@ -30,7 +30,7 @@
             <el-tag v-if="scope.row.state === 2" type="danger">未测试</el-tag>
             <el-tag v-if="scope.row.state === 0" type="info">未连接</el-tag>
 
-            (上次测试时间{{ scope.row.connectionTime }})
+            (上次连接成功时间{{ scope.row.connectionTime }})
           </template>
         </el-table-column>
         <el-table-column prop="description" label="说明" :show-overflow-tooltip='true'></el-table-column>

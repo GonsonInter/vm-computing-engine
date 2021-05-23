@@ -453,16 +453,22 @@ export default {
         this.getFormulationInfo.groupId = 'rootId';
 
       let treeData = await this.getGroupList();
+      console.log(treeData)
       this.$http.post('/eqTemplate/FindEqInfo', this.getFormulationInfo)
           .then(res => {
             if (res.hasOwnProperty('result')) {
               this.tableData = res.result.eqInfoList;
               this.totalNum = this.tableData.length;
               this.handleFirstShow(this.tableData);
+
+              let search = {
+                groupId:'root',
+                children: treeData
+              }
               this.tableData.forEach(item => {
-                item.groupName = this.getGroupName(item.groupId, treeData);
+                item.groupName = this.getGroupName(item.groupId, search);
               })
-              console.log(this.tableData)
+              // console.log(this.tableData)
             } else {
               this.$message.error('获取公式列表失败,' + res.error.message)
             }
@@ -532,10 +538,7 @@ export default {
     },
 
     getGroupName(id, treeData) {
-      treeData = {
-        groupId: -1,
-        children: treeData
-      }
+      // console.log(treeData)
       let path = [];
       let find = false;
       // console.log(treeData)
@@ -544,6 +547,7 @@ export default {
 
       function dfs(node) {
         path.push(node.groupName);
+        console.log(node.groupName)
         if (node.groupId === id) {
           find = true;
           console.log(path)
@@ -555,8 +559,8 @@ export default {
             dfs(node.children[i]);
             if (find) return;
           }
+          path.pop();
         }
-        path.pop();
       }
     }
   },
